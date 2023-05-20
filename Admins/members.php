@@ -314,7 +314,7 @@ if(isset($_SESSION['Username'])){
         if($count>0){?>
             <h1 class="text-center">Edit Member</h1>
             <div class="container">
-                <form class="form-horizontal" action="?do=Update" method="POST">
+                <form class="form-horizontal" action="?do=Update" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="userid" value="<?php echo $userid ?>" />
                     <!-- Start Username Field -->
                     <div class="form-group form-group-lg">
@@ -374,6 +374,21 @@ if(isset($_SESSION['Username'])){
                         </div>
                     </div>
                     <!-- End Fullname Field -->
+                    <!-- Start Avatar Field -->
+                    <div class="form-group form-group-lg">
+                        <label class="col-sm-2 control-label">User Avatar</label>
+                        <div class="col-sm-10 col-md-4">
+                            <input
+                                type="file"
+                                name="avatar"
+                                value = "<?php echo $row['avatar'] ?>"
+                                class="form-control"
+                                required="required"
+                                >
+                            </input>
+                        </div>
+                    </div>
+                    <!-- End Avatar Field -->
                     <div class="form-group form-group-lg">
                         <div class="col-sm-offset-2 col-sm-10">
                             <input 
@@ -395,6 +410,20 @@ if(isset($_SESSION['Username'])){
             
             echo "<h1 class='text-center'>Update Member</h1>";
             echo "<div class='container'>";
+
+            // Uploads Files
+
+            $avatar = $_FILES['avatar'];
+            $avatarName = $_FILES['avatar']['name'];
+            $avatarTmp = $_FILES['avatar']['tmp_name'];
+            $avatarType = $_FILES['avatar']['type'];
+            $avatarSize = $_FILES['avatar']['size'];
+            
+            $avatarAllowedExtenstion = array('jpg', 'jpeg', 'png', 'gif');
+
+            $avatar_extention1 = explode('.',$avatarName);
+            $avatarExtenstion = strtolower(end($avatar_extention1));
+
             //Get Variable From Form
 
             $id = $_POST['userid'];
@@ -421,6 +450,15 @@ if(isset($_SESSION['Username'])){
             if(empty($Fullname)){
                 $formErrors[]='FullName Can\'t be <strong>empty</strong>';
             }
+            if(!(empty($avatar)) && !(in_array($avatarExtenstion, $avatarAllowedExtenstion))){
+                $formErrors[] = 'This Extenstion Is Not <strong>Allowed</strong>';
+            }
+            if(empty($avatar)){
+                $formErrors[] = 'Avatar Is <strong>Required</strong>';
+            }
+            if($avatarSize > 4194304){
+                $formErrors[] = 'Avatar Cant Be Larger Than <strong>4MB</strong>';
+            }
             
             // Loop Into Errors And Echo It
             
@@ -438,16 +476,19 @@ if(isset($_SESSION['Username'])){
                 if($count == 1){
                     $theMsg =  "<div class='container alert alert-danger'> This User Is Exist</div>";
                     redirectHome($theMsg, 'back');
-                }
-                $stmt = $db->prepare("UPDATE 
+                }else{
+                    $avatar = rand(0,1000000). $avatarName;
+                    move_uploaded_file($avatarTmp, 'Uploads\Avatar\\'.$avatar);
+                    $stmt = $db->prepare("UPDATE 
                                             users 
                                         SET 
-                                            Username = ?, Email = ?, Fullname = ?, Password = ? 
+                                            Username = ?, Email = ?, Fullname = ?, Password = ?, avatar = ? 
                                         WHERE 
                                             UserID = ?");
-                $stmt->execute(array($user, $Email, $Fullname, $pass, $id));
+                $stmt->execute(array($user, $Email, $Fullname, $pass, $avatar, $id));
                 $theMsg = "<div class='alert alert-success'>" . $stmt->rowcount() . ' Record Updated</div>';
-                redirectHome($theMsg, "members.php");
+                redirectHome($theMsg, "members.php",422);
+            }
             }
         }else{
             $theMsg = "<div class='alert alert-danger'>You Cant Open This Page Directly</div>";

@@ -1,3 +1,11 @@
+<?php
+// Get The user avatar to show 
+if(isset($_SESSION['user'])){
+    $user_avatar = get('avatar','users','WHERE Username = "'.$_SESSION['user'].'"',NULL,'UserID');
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +19,11 @@
     <div class="upper-bar">
         <div class="container">
             <?php if(isset($_SESSION['user'])){?>
-                <img class='my-image img-circle' src='OIP (1).jpg' alt='' />
+                <img class='my-image img-circle' src='Admins\Uploads\Avatar\<?php if(strlen($user_avatar['avatar'])>0){
+                    echo $user_avatar['avatar'];
+                }else{
+                    echo 'defult.jpeg';
+                } ?>' alt='' />
                 <div class="btn-group my-info">
                     <span class="btn btn-default dropdown-toggle" data-toggle='dropdown'>
                         <?php echo $_SESSION['user'];?>
