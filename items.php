@@ -94,6 +94,8 @@ if(isset($_GET['item_ID'])){
             <hr class='custom-hr'>
             <!-- Start Add Comment -->
             <?php if(isset($_SESSION['user'])){
+                // Get User Data
+                $userdata = get('*','users','WHERE Username = "'.$_SESSION['user'].'"', NULL, 'UserID');
 
             ?>
             <div class="row">
@@ -107,7 +109,7 @@ if(isset($_GET['item_ID'])){
                         <?php
                         if($_SERVER['REQUEST_METHOD']=='POST'){
                             $comment = filter_var($_POST['comment'], FILTER_SANITIZE_STRING);
-                            $user    = $_SESSION['UserID'];
+                            $user    = $userdata['UserID'];
                             $itemid  = $item['item_ID'];
                             if(!empty($comment)){
                                 $stmt = $db->prepare("INSERT INTO comments (`comment`, `status`, `comment_date`, `item_ID`, `user_ID`)Values(:zcomment, 0, now(), :zitemid, :zuserid)");
@@ -135,7 +137,7 @@ if(isset($_GET['item_ID'])){
             <hr class='custom-hr'>
             <?php
                 $stmt = $db->prepare("SELECT 
-                                comments.*, users.Username, users.avatar
+                                comments.*, users.Username, users.avatar AS user_avatar
                             FROM 
                                 comments
                             INNER JOIN
@@ -158,8 +160,8 @@ if(isset($_GET['item_ID'])){
                     <div class="comment-box">
                         <div class="row">
                             <div class="col-md-2 text-center">
-                            <img class='img-responsive img-thimbnail img-circle center-block' src='Admins\Uploads\Avatar\<?php if(strlen($user_avatar['avatar'])>0){
-                                echo $user_avatar['avatar'];
+                            <img class='img-responsive img-thimbnail img-circle center-block' src='Admins\Uploads\Avatar\<?php if(strlen($comment['user_avatar'])>0){
+                                echo $comment['user_avatar'];
                                 }else{
                                     echo 'defult.jpeg';
                                 } ?>' alt='' />
