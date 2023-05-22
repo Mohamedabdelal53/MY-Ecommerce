@@ -110,7 +110,7 @@ if(isset($_GET['item_ID'])){
                             $user    = $_SESSION['UserID'];
                             $itemid  = $item['item_ID'];
                             if(!empty($comment)){
-                                $stmt = $db->prepare("INSERT INTO comments (`comment`, `status`, `comment_date`, `item_ID`,`user_ID`)Values(:zcomment, 0, now(), :zitemid, :zuserid)");
+                                $stmt = $db->prepare("INSERT INTO comments (`comment`, `status`, `comment_date`, `item_ID`, `user_ID`)Values(:zcomment, 0, now(), :zitemid, :zuserid)");
                                 $stmt->execute(array(
                                     'zcomment'=>$comment,
                                     'zitemid'=>$itemid,
