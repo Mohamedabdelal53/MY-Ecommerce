@@ -41,6 +41,22 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
 
         $password = $_POST['password'];
         $password_again = $_POST['password-again'];
+
+        //Upload Files
+        $avatar     = $_FILES['avatar'];
+        $avatarName = $_FILES['avatar']['name'];
+        $avatarSize = $_FILES['avatar']['size'];
+        $avatarTmp  = $_FILES['avatar']['tmp_name'];
+        $avatarType = $_FILES['avatar']['type'];
+        
+        // List Of Allowed File Typed To Upload
+        
+        $avatarAllowedExtenstion = array("jpeg","jpg","png","gif");
+
+        // Get Avatar Extenstion
+        $avatarExtenstion1 = explode('.',$avatarName);
+        $avatarExtenstion = strtolower(end($avatarExtenstion1));
+
         
         if(strlen($filtereduser)<4){
             $formerrors[] = "Username Can't Be Less Than 4 Letter ";
@@ -51,6 +67,15 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         if(filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) != true){
             $formerrors[] = 'This Email Not Valid';
         }
+        if(!(empty($avatar)) && !(in_array($avatarExtenstion, $avatarAllowedExtenstion))){
+            $formErrors[] = 'This Extenstion Is Not <strong>Allowed</strong>';
+        }
+        if(empty($avatar)){
+            $formErrors[] = 'Avatar Is <strong>Required</strong>';
+        }
+        if($avatarSize > 4194304){
+            $formErrors[] = 'Avatar Cant Be Larger Than <strong>4MB</strong>';
+        }
         if(empty($formerrors)){
 
             $username = $filtereduser;
@@ -58,11 +83,14 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
             $checkuser = checkItem("Username", 'users', $username);
             $hashedpass = sha1($password);
             if($checkuser!=1){
-                    $stmt = $db->prepare("INSERT INTO users (Username, Password, Email, RegStatus, Date) VALUES (:zusername, :zpassword, :zemail, 0, now())");
+                    $avatar = rand(0, 1000000) . '_' . $avatarName;
+                    move_uploaded_file($avatarTmp, 'Admins\Uploads\Avatar\\'. $avatar);
+                    $stmt = $db->prepare("INSERT INTO users (Username, Password, Email, RegStatus, Date, avatar) VALUES (:zusername, :zpassword, :zemail, 0, now(), :zavatar)");
                     $stmt->execute(array(
                         'zusername'=>$username,
                         'zpassword'=>$hashedpass,
-                        'zemail'=>$email
+                        'zemail'=>$email,
+                        'zavatar'=>$avatar
                 ));
                 $count = $stmt->rowCount();
                 if($count>0){
@@ -117,7 +145,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         <h1 class='text-center'>
             Signup
         </h1>
-        <form class='signup' action="<?php $_SERVER['PHP_SELF']?>" method="POST" >
+        <form class='signup' action="<?php $_SERVER['PHP_SELF']?>" method="POST" enctype="multipart/form-data" >
             <div class="input-container">
                 <input 
                 class='form-control' 
@@ -158,6 +186,13 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
             required
             placeholder='Email' />
         </div>
+        <strong>profile image</strong>
+        <input
+                type="file"
+                name="avatar"
+                class="form-control"
+                required="required"
+                />
         <input 
         class='btn btn-success btn-block' 
             type="submit"

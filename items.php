@@ -158,7 +158,11 @@ if(isset($_GET['item_ID'])){
                     <div class="comment-box">
                         <div class="row">
                             <div class="col-md-2 text-center">
-                            <img class='img-responsive img-thimbnail img-circle center-block' src='Uploads\Avatar\<?php echo $comment['avatar']; ?>' alt='' />
+                            <img class='img-responsive img-thimbnail img-circle center-block' src='Admins\Uploads\Avatar\<?php if(strlen($user_avatar['avatar'])>0){
+                                echo $user_avatar['avatar'];
+                                }else{
+                                    echo 'defult.jpeg';
+                                } ?>' alt='' />
                             <?php echo $comment['Username']; ?>
                         </div>
                         <div class="col-md-10">

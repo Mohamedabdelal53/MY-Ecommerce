@@ -19,6 +19,25 @@ function getAll($field,$table, $where=NULL,$option=NULL, $order, $ordering='DESC
 
 }
 
+/**
+ ** Get All Funtion v1.0
+ ** Function To Get All Records From Database
+ */
+
+function get($field,$table, $where=NULL,$option=NULL, $order, $ordering='DESC'){
+    global $db;
+    
+    $getAll = $db->prepare("SELECT $field FROM $table $where $option ORDER BY $order $ordering");
+    
+    $getAll->execute();
+    
+    $All = $getAll->fetch();
+
+    return $All;
+
+}
+
+
 /*
 Check If User Is Not Activated
 Function To Check The RegStatus Of The User
