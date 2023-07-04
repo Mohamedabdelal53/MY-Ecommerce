@@ -487,7 +487,7 @@ if(isset($_SESSION['Username'])){
                                             UserID = ?");
                 $stmt->execute(array($user, $Email, $Fullname, $pass, $avatar, $id));
                 $theMsg = "<div class='alert alert-success'>" . $stmt->rowcount() . ' Record Updated</div>';
-                redirectHome($theMsg, "members.php",422);
+                redirectHome($theMsg, "members.php");
             }
             }
         }else{

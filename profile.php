@@ -42,7 +42,6 @@ if(isset($_SESSION['user'])){
                         <span>Favourite Category</span>: 
                     </li>
                 </ul>
-                <a href="#" class="btn btn-primary">Edit Infromation</a>
             </div>
         </div>
     </div>
